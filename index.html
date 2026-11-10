@@ -14,6 +14,7 @@
     * {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
+      touch-action: manipulation;
     }
 
     body {
@@ -34,7 +35,7 @@
       font-family: 'Cormorant Garamond', serif;
     }
 
-    /* O Canvas NUNCA recebe cliques */
+    /* O Canvas NUNCA intercepta toques */
     #flowerCanvas {
       position: fixed;
       top: 0;
@@ -45,7 +46,6 @@
       z-index: 1;
     }
 
-    /* Conteúdo sempre acima do fundo */
     .app-content {
       position: relative;
       z-index: 20;
@@ -65,7 +65,6 @@
       border-bottom: 1px solid rgba(244, 114, 182, 0.2);
     }
 
-    /* Gestão direta de páginas */
     .page-section {
       display: none;
     }
@@ -80,7 +79,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Cartão do Envelope */
     .envelope-card {
       background: linear-gradient(145deg, #7f1d1d, #581010);
       border: 2px solid rgba(244, 114, 182, 0.35);
@@ -90,7 +88,6 @@
       user-select: none;
     }
 
-    /* Disco Giratório */
     .vinyl-disc {
       animation: spin 6s linear infinite;
       animation-play-state: paused;
@@ -110,21 +107,21 @@
   <!-- Fundo Animado com Flores Subindo -->
   <canvas id="flowerCanvas"></canvas>
 
-  <!-- Elemento de Áudio com link público direto de Harry Styles: Coming Up Roses -->
+  <!-- Elemento de Áudio com seu link funcional do Catbox -->
   <audio id="loveAudio" loop preload="auto">
-    <source id="audioSource" src="https://ia801503.us.archive.org/15/items/harry-styles-coming-up-roses/ComingUpRoses.mp3" type="audio/mpeg">
+    <source id="audioSource" src="https://files.catbox.moe/t6wmzu.mp3" type="audio/mpeg">
   </audio>
 
   <!-- Camada Principal -->
   <div class="app-content flex flex-col min-h-screen justify-between">
 
-    <!-- Menu Superior com abas acessíveis e fáceis de tocar -->
+    <!-- Menu Superior -->
     <header class="sticky top-0 z-50 glass-nav px-3 py-2.5">
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-1">
         
         <button type="button" onclick="goToTab('home')" class="text-left font-serif-title font-bold text-rose-300 text-sm tracking-wide flex items-center gap-1">
           <span>🌹</span>
-          <span class="hidden xs:inline">Roses</span>
+          <span>Roses</span>
         </button>
 
         <!-- Barra de Navegação -->
@@ -146,7 +143,7 @@
           </button>
         </nav>
 
-        <!-- Botão Play Rápido do Topo -->
+        <!-- Botão Play Rápido -->
         <button type="button" onclick="togglePlayMusic()" class="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1 shadow">
           <span id="quickAudioIcon">▶</span>
           <span class="hidden sm:inline">Som</span>
@@ -191,7 +188,7 @@
           <button type="button" onclick="goToTab('moments')" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
             Ver Momentos &rarr;
           </button>
-          <button type="button" onclick="goToTab('player')" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
+          <button type="button" onclick="goToTab('player'); togglePlayMusic();" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
             Tocar Música 🎵
           </button>
         </div>
@@ -243,7 +240,7 @@
             </p>
           </div>
 
-          <!-- Controlos dos Slides -->
+          <!-- Controles dos Slides -->
           <div class="flex items-center justify-between mt-6 pt-4 border-t border-rose-500/20">
             <button type="button" onclick="moveSlide(-1)" class="px-3 py-1.5 rounded-lg bg-rose-950/70 border border-rose-500/30 text-rose-200 text-xs font-semibold">
               &larr; Anterior
@@ -302,197 +299,4 @@
         </div>
       </section>
 
-      <!-- ==================== ABA 4: CARTA ==================== -->
-      <section id="tab-letter" class="page-section">
-        <div class="glass-panel rounded-2xl p-6 sm:p-8 max-w-lg mx-auto border-rose-400/30 text-justify">
-          <div class="text-center mb-5">
-            <span class="inline-block px-3 py-1 rounded-full bg-rose-600/30 text-rose-300 text-[11px] font-bold uppercase tracking-wider mb-2">
-              ❤️ Minha Declaração
-            </span>
-            <h3 class="font-serif-title text-2xl font-bold text-rose-100">
-              Querida, isto é para ti.
-            </h3>
-          </div>
-
-          <div class="font-serif-body text-base text-rose-100/90 space-y-4 leading-relaxed">
-            <p>
-              Às vezes faltam palavras exatas para expressar tudo o que significas para mim. Se eu tivesse de resumir o que sinto quando penso em ti, seria paz, alegria e a certeza mais bonita que já tive.
-            </p>
-            <p>
-              Como diz a canção, <em>"Coming up roses"</em> — ao teu lado tudo desabrocha e ganha cor. Obrigado por seres o meu refúgio, a minha parceira e o motivo dos meus melhores sorrisos.
-            </p>
-            <p>
-              Prometo cuidar do nosso amor todos os dias com carinho, paciência e cumplicidade.
-            </p>
-          </div>
-
-          <div class="mt-6 pt-4 border-t border-rose-500/20 text-center font-serif-title italic text-rose-300 text-xs">
-            Com todo o meu amor, hoje e sempre.
-          </div>
-        </div>
-      </section>
-
-      <!-- ==================== ABA 5: MÚSICA ==================== -->
-      <section id="tab-player" class="page-section">
-        <div class="glass-panel rounded-2xl p-6 max-w-xs mx-auto text-center border-rose-400/30">
-          <span class="px-3 py-0.5 rounded-full bg-rose-950 text-rose-300 text-[10px] font-bold uppercase">
-            Música do Nosso Amor
-          </span>
-
-          <!-- Vinil Giratório -->
-          <div class="w-36 h-36 mx-auto my-5 flex items-center justify-center">
-            <div id="vinylDisk" class="vinyl-disc w-full h-full rounded-full bg-stone-900 border-4 border-stone-800 shadow-xl flex items-center justify-center">
-              <div class="w-14 h-14 rounded-full bg-rose-700 flex flex-col items-center justify-center text-white">
-                <span class="text-[7px] font-bold">HARRY</span>
-                <span class="text-[8px] font-serif-title">Roses</span>
-                <div class="w-2 h-2 rounded-full bg-black mt-0.5"></div>
-              </div>
-            </div>
-          </div>
-
-          <h3 class="font-serif-title text-lg font-bold text-rose-100">Coming Up Roses</h3>
-          <p class="text-xs text-rose-300/80 mb-4">Harry Styles</p>
-
-          <!-- Botão Play Grande -->
-          <button type="button" onclick="togglePlayMusic()" id="btnPlayBig" class="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xl mx-auto flex items-center justify-center shadow-lg active:scale-95 transition-transform">
-            ▶
-          </button>
-          
-          <p id="playerStatus" class="text-[11px] text-rose-300/70 mt-3">
-            Toque no botão para ouvir
-          </p>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Rodapé -->
-    <footer class="py-3 text-center text-[11px] text-rose-300/60">
-      Feito com amor ❤️
-    </footer>
-
-  </div>
-
-  <script>
-    // 1. SISTEMA INFALÍVEL DE ABAS
-    function goToTab(tabName) {
-      // Ocultar todas as secções
-      var sections = document.querySelectorAll('.page-section');
-      for (var i = 0; i < sections.length; i++) {
-        sections[i].classList.remove('active');
-      }
-
-      // Mostrar a secção pretendida
-      var activeSec = document.getElementById('tab-' + tabName);
-      if (activeSec) {
-        activeSec.classList.add('active');
-      }
-
-      // Atualizar destaque dos botões do menu
-      var tabs = document.querySelectorAll('.nav-tab');
-      for (var j = 0; j < tabs.length; j++) {
-        tabs[j].classList.remove('bg-rose-900/80', 'text-white', 'border', 'border-rose-500/40');
-        tabs[j].classList.add('text-rose-200');
-      }
-
-      var currentBtn = document.getElementById('btn-' + tabName);
-      if (currentBtn) {
-        currentBtn.classList.add('bg-rose-900/80', 'text-white', 'border', 'border-rose-500/40');
-        currentBtn.classList.remove('text-rose-200');
-      }
-
-      window.scrollTo(0, 0);
-    }
-
-    // 2. SLIDER DE MOMENTOS
-    var activeSlide = 0;
-    var totalSlides = 3;
-
-    function moveSlide(direction) {
-      document.getElementById('slide-' + activeSlide).classList.add('hidden');
-      activeSlide = (activeSlide + direction + totalSlides) % totalSlides;
-      document.getElementById('slide-' + activeSlide).classList.remove('hidden');
-      document.getElementById('slideIndicator').innerText = (activeSlide + 1) + ' / ' + totalSlides;
-    }
-
-    // 3. CARTÕES DE MOTIVOS (REVELAR TEXTO)
-    function toggleBox(element) {
-      var secret = element.querySelector('.card-secret');
-      if (secret) {
-        secret.classList.toggle('hidden');
-      }
-    }
-
-    // 4. ÁUDIO & DISCO
-    var audio = document.getElementById('loveAudio');
-    var vinyl = document.getElementById('vinylDisk');
-    var btnPlayBig = document.getElementById('btnPlayBig');
-    var quickAudioIcon = document.getElementById('quickAudioIcon');
-    var playerStatus = document.getElementById('playerStatus');
-
-    function togglePlayMusic() {
-      if (!audio) return;
-
-      if (audio.paused) {
-        audio.play().then(function() {
-          vinyl.classList.add('playing');
-          btnPlayBig.innerText = '❚❚';
-          quickAudioIcon.innerText = '❚❚';
-          playerStatus.innerText = 'A tocar agora...';
-        }).catch(function(err) {
-          playerStatus.innerText = 'Toque novamente para tocar';
-        });
-      } else {
-        audio.pause();
-        vinyl.classList.remove('playing');
-        btnPlayBig.innerText = '▶';
-        quickAudioIcon.innerText = '▶';
-        playerStatus.innerText = 'Pausado';
-      }
-    }
-
-    // 5. ANIMAÇÃO DE FLORES SUBINDO EM CANVAS
-    var canvas = document.getElementById('flowerCanvas');
-    var ctx = canvas.getContext('2d');
-    var w = canvas.width = window.innerWidth;
-    var h = canvas.height = window.innerHeight;
-
-    window.addEventListener('resize', function() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    });
-
-    var petals = [];
-    for (var p = 0; p < 26; p++) {
-      petals.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        size: Math.random() * 8 + 6,
-        speedY: Math.random() * 0.9 + 0.5,
-        opacity: Math.random() * 0.4 + 0.3
-      });
-    }
-
-    function drawPetals() {
-      ctx.clearRect(0, 0, w, h);
-      for (var k = 0; k < petals.length; k++) {
-        var pt = petals[k];
-        pt.y -= pt.speedY;
-        pt.x += Math.sin(pt.y * 0.01) * 0.4;
-
-        if (pt.y < -20) {
-          pt.y = h + 20;
-          pt.x = Math.random() * w;
-        }
-
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(244, 63, 94, ' + pt.opacity + ')';
-        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      requestAnimationFrame(drawPetals);
-    }
-    drawPetals();
-  </script>
-</body>
-</html>
+      <!-- ==================== ABA 4: CARTA =================
