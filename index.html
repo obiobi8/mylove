@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para o Meu Amor 🌹</title>
+
+  <!-- Google Fonts & Tailwind CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(ellipse at bottom, #2b0813 0%, #120307 60%, #050103 100%);
+      color: #fce7f3;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .font-serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .font-serif-body {
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    /* Canvas de Flores flutuando em background */
+    #flowerCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Glassmorphism custom */
+    .glass-panel {
+      background: rgba(30, 8, 16, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(244, 114, 182, 0.18);
+      box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.5), 0 0 25px rgba(225, 29, 72, 0.12);
+    }
+
+    .glass-nav {
+      background: rgba(18, 3, 7, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(244, 114, 182, 0.15);
+    }
+
+    /* Transição de páginas */
+    .page-section {
+      display: none;
+      opacity: 0;
+      transform: translateY(18px) scale(0.99);
+      transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .page-section.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Envelope Interativo 3D */
+    .envelope-wrapper {
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .envelope {
+      position: relative;
+      width: 290px;
+      height: 190px;
+      background: #7f1d1d;
+      border-radius: 8px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      transition: transform 0.4s ease;
+    }
+
+    @media (min-width: 640px) {
+      .envelope {
+        width: 350px;
+        height: 220px;
+      }
+    }
+
+    .envelope:hover {
+      transform: translateY(-5px);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 145px solid transparent;
+      border-right: 145px solid transparent;
+      border-top: 110px solid #991b1b;
+      transform-origin: top;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 4;
+    }
+
+    @media (min-width: 640px) {
+      .envelope-flap {
+        border-left-width: 175px;
+        border-right-width: 175px;
+        border-top-width: 125px;
+      }
+    }
+
+    .envelope.open .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-pocket {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 145px solid #6b1414;
+      border-right: 145px solid #6b1414;
+      border-bottom: 100px solid #550f0f;
+      border-top: 90px solid transparent;
+      border-radius: 0 0 8px 8px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    @media (min-width: 640px) {
+      .envelope-pocket {
+        border-left-width: 175px;
+        border-right-width: 175px;
+        border-bottom-width: 115px;
+        border-top-width: 105px;
+      }
+    }
+
+    .envelope-letter {
+      position: absolute;
+      left: 15px;
+      right: 15px;
+      bottom: 12px;
+      height: 165px;
+      background: #fff8f8;
+      border-radius: 6px;
+      padding: 16px;
+      color: #3b0714;
+      transition: transform 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 2;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    @media (min-width: 640px) {
+      .envelope-letter {
+        left: 20px;
+        right: 20px;
+        height: 190px;
+      }
+    }
+
+    .envelope.open .envelope-letter {
+      transform: translateY(-85px);
+    }
+
+    /* Vinil animado */
+    .vinyl-disc {
+      animation: spin 7s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .vinyl-disc.playing {
+      animation-play-state: running;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Cartões 3D Flip para o Jardim de Segredos */
+    .card-3d-wrap {
+      perspective: 1000px;
+    }
+
+    .card-3d-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .card-3d-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="relative flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+  <!-- Fundo Animado com Rosas e Flores Subindo -->
+  <canvas id="flowerCanvas"></canvas>
+
+  
+  <audio id="loveAudio" loop preload="auto">
+    <source id="audioSource" src="https://files.catbox.moe/t6wmzu.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Barra de Navegação Superior Fixa -->
+  <nav class="sticky top-0 z-50 glass-nav px-4 py-3 sm:px-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" onclick="switchPage('home')" class="flex items-center gap-2 group">
+        <span class="text-rose-400 group-hover:scale-110 transition-transform duration-300">
+          <i data-lucide="flower-2" class="w-6 h-6"></i>
+        </span>
+        <span class="font-serif-title tracking-wider text-lg font-semibold bg-gradient-to-r from-rose-200 via-rose-300 to-amber-200 bg-clip-text text-transparent">
+          Coming Up Roses
+        </span>
+      </a>
+
+      <!-- Menu de Páginas -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <button onclick="switchPage('home')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-white bg-rose-900/60" data-page="home">
+          <i data-lucide="home" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Início</span>
+        </button>
+
+        <button onclick="switchPage('moments')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="moments">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Momentos</span>
+        </button>
+
+        <button onclick="switchPage('garden')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="garden">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Motivos</span>
+        </button>
+
+        <button onclick="switchPage('letter')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="letter">
+          <i data-lucide="mail-heart" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Carta</span>
+        </button>
+
+        <button onclick="switchPage('player')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="player">
+          <i data-lucide="disc" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Música</span>
+        </button>
+      </div>
+
+      <!-- Quick Audio Pill -->
+      <button id="quickPlayBtn" onclick="toggleAudio()" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 hover:bg-rose-500/30 text-rose-200 transition-all text-xs font-semibold">
+        <i id="quickPlayIcon" data-lucide="play" class="w-3.5 h-3.5 text-rose-300"></i>
+        <span id="quickPlayText" class="hidden md:inline">Tocar</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- CONTEÚDO PRINCIPAL (Troca de Páginas) -->
+  <main class="relative z-10 flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-center">
+
+    <!-- ==================== PÁGINA 1: INÍCIO ==================== -->
+    <section id="page-home" class="page-section active text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs sm:text-sm font-medium mb-6 backdrop-blur-md">
+        <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-400 fill-rose-400 animate-pulse"></i>
+        <span>Feito com todo carinho para você</span>
+      </div>
+
+      <h1 class="font-serif-title text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-4">
+        <span class="block text-white">Com você, tudo floresce:</span>
+        <span class="bg-gradient-to-r from-rose-400 via-pink-300 to-amber-200 bg-clip-text text-transparent italic">
+          Everything is coming up roses.
+        </span>
+      </h1>
+
+      <p class="font-serif-body text-xl sm:text-2xl text-rose-100/90 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+        "Não importa a estação lá fora, ao seu lado o meu mundo sempre encontra um jeito de desabrochar em flores."
+      </p>
+
+      <!-- Envelope Interativo -->
+      <div class="flex flex-col items-center justify-center my-6">
+        <div class="envelope-wrapper" onclick="toggleEnvelope(this)">
+          <div class="envelope" id="mainEnvelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-letter flex flex-col justify-center items-center text-center">
+              <span class="text-rose-600 font-serif-title italic font-bold text-lg mb-1">Para o amor da minha vida</span>
+              <p class
