@@ -35,7 +35,6 @@
       font-family: 'Cormorant Garamond', serif;
     }
 
-    /* O Canvas NUNCA intercepta toques */
     #flowerCanvas {
       position: fixed;
       top: 0;
@@ -71,11 +70,11 @@
 
     .page-section.active {
       display: block;
-      animation: fadeIn 0.3s ease-out;
+      animation: fadeIn 0.25s ease-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -104,8 +103,14 @@
 </head>
 <body class="relative flex flex-col justify-between min-h-screen">
 
-  <!-- Fundo Animado com Flores Subindo -->
+  <!-- Fundo Animado -->
   <canvas id="flowerCanvas"></canvas>
+
+  <!-- Tag nativa de áudio -->
+  <audio id="nativeAudio" loop preload="auto">
+    <source src="https://files.catbox.moe/t6wmzu.mp3" type="audio/mpeg">
+    <source src="https://ia801503.us.archive.org/15/items/harry-styles-coming-up-roses/ComingUpRoses.mp3" type="audio/mpeg">
+  </audio>
 
   <!-- Camada Principal -->
   <div class="app-content flex flex-col min-h-screen justify-between">
@@ -168,11 +173,11 @@
 
         <!-- Envelope Clicável -->
         <div onclick="goToTab('letter')" class="envelope-card p-5 max-w-sm mx-auto text-center transform transition-transform active:scale-95 my-4">
-          <div class="bg-white/95 rounded-xl p-4 text-stone-900 shadow">
-            <span class="text-2xl mb-1 block">💌</span>
+          <div class="bg-white rounded-xl p-4 text-stone-900 shadow">
+            <span class="text-3xl mb-1 block">💌</span>
             <h3 class="font-serif-title text-base font-bold text-rose-800">Para o Amor da Minha Vida</h3>
-            <p class="text-xs text-stone-600 mt-1">Toque aqui para abrir a nossa cartinha completa</p>
-            <span class="mt-3 inline-block px-3 py-1 bg-rose-600 text-white font-bold text-xs rounded-full">
+            <p class="text-xs text-stone-600 mt-1">Toque aqui para abrir a nossa declaração</p>
+            <span class="mt-3 inline-block px-4 py-1.5 bg-rose-600 text-white font-bold text-xs rounded-full shadow">
               Abrir Carta &rarr;
             </span>
           </div>
@@ -183,7 +188,7 @@
           <button type="button" onclick="goToTab('moments')" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
             Ver Momentos &rarr;
           </button>
-          <button type="button" onclick="goToTab('player'); togglePlayMusic();" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
+          <button type="button" onclick="goToTab('player')" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
             Tocar Música 🎵
           </button>
         </div>
@@ -366,31 +371,35 @@
   </div>
 
   <script>
-    // 1. SISTEMA DE NAVEGAÇÃO DE ABAS
+    // 1. SISTEMA ISOLADO DE ABAS (NUNCA TRAVA)
     function goToTab(tabName) {
-      var sections = document.querySelectorAll('.page-section');
-      for (var i = 0; i < sections.length; i++) {
-        sections[i].classList.remove('active');
-      }
+      try {
+        var sections = document.querySelectorAll('.page-section');
+        for (var i = 0; i < sections.length; i++) {
+          sections[i].classList.remove('active');
+        }
 
-      var activeSec = document.getElementById('tab-' + tabName);
-      if (activeSec) {
-        activeSec.classList.add('active');
-      }
+        var activeSec = document.getElementById('tab-' + tabName);
+        if (activeSec) {
+          activeSec.classList.add('active');
+        }
 
-      var tabs = document.querySelectorAll('.nav-tab');
-      for (var j = 0; j < tabs.length; j++) {
-        tabs[j].classList.remove('bg-rose-900/80', 'text-white', 'border', 'border-rose-500/40');
-        tabs[j].classList.add('text-rose-200');
-      }
+        var tabs = document.querySelectorAll('.nav-tab');
+        for (var j = 0; j < tabs.length; j++) {
+          tabs[j].classList.remove('bg-rose-900/80', 'text-white', 'border', 'border-rose-500/40');
+          tabs[j].classList.add('text-rose-200');
+        }
 
-      var currentBtn = document.getElementById('btn-' + tabName);
-      if (currentBtn) {
-        currentBtn.classList.add('bg-rose-900/80', 'text-white', 'border', 'border-rose-500/40');
-        currentBtn.classList.remove('text-rose-200');
-      }
+        var currentBtn = document.getElementById('btn-' + tabName);
+        if (currentBtn) {
+          currentBtn.classList.add('bg-rose-900/80', 'text-white', 'border', 'border-rose-500/40');
+          currentBtn.classList.remove('text-rose-200');
+        }
 
-      window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
+      } catch (err) {
+        console.error("Erro na aba:", err);
+      }
     }
 
     // 2. SLIDER DE MOMENTOS
@@ -398,76 +407,51 @@
     var totalSlides = 3;
 
     function moveSlide(direction) {
-      document.getElementById('slide-' + activeSlide).classList.add('hidden');
-      activeSlide = (activeSlide + direction + totalSlides) % totalSlides;
-      document.getElementById('slide-' + activeSlide).classList.remove('hidden');
-      document.getElementById('slideIndicator').innerText = (activeSlide + 1) + ' / ' + totalSlides;
-    }
-
-    // 3. CARTÕES DE MOTIVOS (REVELAR TEXTO)
-    function toggleBox(element) {
-      var secret = element.querySelector('.card-secret');
-      if (secret) {
-        secret.classList.toggle('hidden');
+      try {
+        document.getElementById('slide-' + activeSlide).classList.add('hidden');
+        activeSlide = (activeSlide + direction + totalSlides) % totalSlides;
+        document.getElementById('slide-' + activeSlide).classList.remove('hidden');
+        document.getElementById('slideIndicator').innerText = (activeSlide + 1) + ' / ' + totalSlides;
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    // 4. MOTOR DE ÁUDIO ROBUSTO (SEM BLOQUEIO MÓVEL)
-    var audioInstance = null;
-    var isAudioPlaying = false;
+    // 3. CARTÕES DE MOTIVOS
+    function toggleBox(element) {
+      try {
+        var secret = element.querySelector('.card-secret');
+        if (secret) {
+          secret.classList.toggle('hidden');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 4. ÁUDIO NATIVO DIRETO
+    var audio = document.getElementById('nativeAudio');
     var vinyl = document.getElementById('vinylDisk');
     var btnPlayBig = document.getElementById('btnPlayBig');
     var quickAudioIcon = document.getElementById('quickAudioIcon');
     var playerStatus = document.getElementById('playerStatus');
 
-    // Inicializa o objeto de áudio de forma direta
-    function getAudio() {
-      if (!audioInstance) {
-        audioInstance = new Audio();
-        audioInstance.crossOrigin = "anonymous";
-        audioInstance.loop = true;
-        // Tenta primeiro o link do Catbox
-        audioInstance.src = "https://files.catbox.moe/t6wmzu.mp3";
-        
-        // Se houver erro de rede no link externo, tenta o ficheiro local como alternativa
-        audioInstance.onerror = function() {
-          console.warn("Falha no link externo, a tentar ficheiro local...");
-          if (audioInstance.src.indexOf("coming-up-roses.mp3") === -1) {
-            audioInstance.src = "coming-up-roses.mp3";
-            audioInstance.load();
-            audioInstance.play().then(onPlaySuccess).catch(function(e) {
-              playerStatus.innerText = "Erro ao carregar o som. Verifique a ligação.";
-            });
-          } else {
-            playerStatus.innerText = "Erro ao reproduzir. Tente novamente.";
-          }
-        };
-      }
-      return audioInstance;
-    }
-
-    function onPlaySuccess() {
-      isAudioPlaying = true;
-      vinyl.classList.add('playing');
-      btnPlayBig.innerText = '❚❚';
-      quickAudioIcon.innerText = '❚❚';
-      playerStatus.innerText = 'A tocar agora... 🌹';
-    }
-
     function togglePlayMusic() {
-      var player = getAudio();
+      if (!audio) return;
 
-      if (!isAudioPlaying) {
-        playerStatus.innerText = 'A iniciar áudio...';
-        player.play().then(function() {
-          onPlaySuccess();
+      if (audio.paused) {
+        playerStatus.innerText = 'Carregando música...';
+        audio.play().then(function() {
+          vinyl.classList.add('playing');
+          btnPlayBig.innerText = '❚❚';
+          quickAudioIcon.innerText = '❚❚';
+          playerStatus.innerText = 'Tocando agora... 🌹';
         }).catch(function(err) {
-          console.warn("Play bloqueado:", err);
-          playerStatus.innerText = 'Toque mais uma vez para autorizar o áudio';
+          console.warn("Autoplay bloqueado:", err);
+          playerStatus.innerText = 'Toque novamente para tocar';
         });
       } else {
-        player.pause();
-        isAudioPlaying = false;
+        audio.pause();
         vinyl.classList.remove('playing');
         btnPlayBig.innerText = '▶';
         quickAudioIcon.innerText = '▶';
@@ -475,48 +459,52 @@
       }
     }
 
-    // 5. ANIMAÇÃO DE FLORES SUBINDO EM CANVAS
-    var canvas = document.getElementById('flowerCanvas');
-    var ctx = canvas.getContext('2d');
-    var w = canvas.width = window.innerWidth;
-    var h = canvas.height = window.innerHeight;
+    // 5. ANIMAÇÃO DE FLORES EM CANVAS (ISOLADA)
+    try {
+      var canvas = document.getElementById('flowerCanvas');
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width = window.innerWidth;
+      var h = canvas.height = window.innerHeight;
 
-    window.addEventListener('resize', function() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    });
-
-    var petals = [];
-    for (var p = 0; p < 26; p++) {
-      petals.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        size: Math.random() * 8 + 6,
-        speedY: Math.random() * 0.9 + 0.5,
-        opacity: Math.random() * 0.4 + 0.3
+      window.addEventListener('resize', function() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
       });
-    }
 
-    function drawPetals() {
-      ctx.clearRect(0, 0, w, h);
-      for (var k = 0; k < petals.length; k++) {
-        var pt = petals[k];
-        pt.y -= pt.speedY;
-        pt.x += Math.sin(pt.y * 0.01) * 0.4;
-
-        if (pt.y < -20) {
-          pt.y = h + 20;
-          pt.x = Math.random() * w;
-        }
-
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(244, 63, 94, ' + pt.opacity + ')';
-        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
-        ctx.fill();
+      var petals = [];
+      for (var p = 0; p < 24; p++) {
+        petals.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: Math.random() * 8 + 6,
+          speedY: Math.random() * 0.9 + 0.5,
+          opacity: Math.random() * 0.4 + 0.3
+        });
       }
-      requestAnimationFrame(drawPetals);
+
+      function drawPetals() {
+        ctx.clearRect(0, 0, w, h);
+        for (var k = 0; k < petals.length; k++) {
+          var pt = petals[k];
+          pt.y -= pt.speedY;
+          pt.x += Math.sin(pt.y * 0.01) * 0.4;
+
+          if (pt.y < -20) {
+            pt.y = h + 20;
+            pt.x = Math.random() * w;
+          }
+
+          ctx.beginPath();
+          ctx.fillStyle = 'rgba(244, 63, 94, ' + pt.opacity + ')';
+          ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        requestAnimationFrame(drawPetals);
+      }
+      drawPetals();
+    } catch (e) {
+      console.warn("Canvas não suportado:", e);
     }
-    drawPetals();
   </script>
 </body>
 </html>
