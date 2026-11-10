@@ -7,23 +7,26 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     * {
-      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(ellipse at bottom, #2b0813 0%, #120307 60%, #050103 100%);
+      background: #120207;
       color: #fce7f3;
-      overflow-x: hidden;
-      min-height: 100vh;
       margin: 0;
       padding: 0;
+      overflow-x: hidden;
     }
 
     .font-serif-title {
@@ -34,65 +37,63 @@
       font-family: 'Cormorant Garamond', serif;
     }
 
-    /* O Canvas NUNCA recebe cliques */
-    #flowerCanvas {
+    /* PÉTALAS EM CSS PURO (NÃO BLOQUEIAM TOQUE) */
+    .petals-bg {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none !important;
-      z-index: 1;
+      z-index: 0;
+      overflow: hidden;
     }
 
-    /* Conteúdo sempre acima do fundo */
-    .app-content {
-      position: relative;
-      z-index: 20;
+    .petal {
+      position: absolute;
+      bottom: -40px;
+      background: radial-gradient(circle, #fb7185 10%, #e11d48 90%);
+      border-radius: 50% 0 50% 50%;
+      opacity: 0.65;
+      animation: floatRoses linear infinite;
+      pointer-events: none !important;
     }
 
-    .glass-panel {
-      background: rgba(30, 8, 16, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(244, 114, 182, 0.25);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    @keyframes floatRoses {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.75;
+      }
+      90% {
+        opacity: 0.75;
+      }
+      100% {
+        transform: translateY(-115vh) rotate(360deg);
+        opacity: 0;
+      }
     }
 
-    .glass-nav {
-      background: rgba(18, 3, 7, 0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(244, 114, 182, 0.2);
+    /* Variações de tempo e posição das pétalas */
+    .p1 { left: 8%; width: 14px; height: 18px; animation-duration: 9s; animation-delay: 0s; }
+    .p2 { left: 22%; width: 12px; height: 15px; animation-duration: 11s; animation-delay: 2s; }
+    .p3 { left: 38%; width: 16px; height: 21px; animation-duration: 8s; animation-delay: 4s; }
+    .p4 { left: 52%; width: 11px; height: 14px; animation-duration: 12s; animation-delay: 1s; }
+    .p5 { left: 68%; width: 15px; height: 19px; animation-duration: 10s; animation-delay: 3s; }
+    .p6 { left: 82%; width: 13px; height: 16px; animation-duration: 9.5s; animation-delay: 5s; }
+    .p7 { left: 92%; width: 16px; height: 20px; animation-duration: 8.5s; animation-delay: 2.5s; }
+
+    .card-box {
+      background: #230610;
+      border: 1px solid rgba(244, 114, 182, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
     }
 
-    /* Gestão direta de páginas */
-    .page-section {
-      display: none;
-    }
-
-    .page-section.active {
-      display: block;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Cartão do Envelope */
-    .envelope-card {
-      background: linear-gradient(145deg, #7f1d1d, #581010);
-      border: 2px solid rgba(244, 114, 182, 0.35);
-      border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-      cursor: pointer;
-      user-select: none;
-    }
-
-    /* Disco Giratório */
+    /* Vinil giratório */
     .vinyl-disc {
-      animation: spin 6s linear infinite;
+      animation: spinVinyl 6s linear infinite;
       animation-play-state: paused;
     }
 
@@ -100,138 +101,238 @@
       animation-play-state: running;
     }
 
-    @keyframes spin {
+    @keyframes spinVinyl {
       100% { transform: rotate(360deg); }
     }
   </style>
 </head>
-<body class="relative flex flex-col justify-between min-h-screen">
+<body class="relative min-h-screen">
 
-  <!-- Fundo Animado com Flores Subindo -->
-  <canvas id="flowerCanvas"></canvas>
+  <!-- Fundo Animado com Flores Subindo (Puro CSS, leve e sem bugs) -->
+  <div class="petals-bg">
+    <div class="petal p1"></div>
+    <div class="petal p2"></div>
+    <div class="petal p3"></div>
+    <div class="petal p4"></div>
+    <div class="petal p5"></div>
+    <div class="petal p6"></div>
+    <div class="petal p7"></div>
+  </div>
 
-  <!-- Elemento de Áudio com link público direto de Harry Styles: Coming Up Roses -->
-  <audio id="loveAudio" loop preload="auto">
-    <source id="audioSource" src="https://ia801503.us.archive.org/15/items/harry-styles-coming-up-roses/ComingUpRoses.mp3" type="audio/mpeg">
+  <!-- Áudio Direto -->
+  <audio id="audioTrack" loop preload="auto">
+    <source src="https://ia801503.us.archive.org/15/items/harry-styles-coming-up-roses/ComingUpRoses.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Camada Principal -->
-  <div class="app-content flex flex-col min-h-screen justify-between">
+  <!-- Barra de Navegação Fixa no Topo (Links âncora nativos que NUNCA falham) -->
+  <header class="sticky top-0 z-50 bg-[#160309]/95 border-b border-rose-900/60 px-3 py-2.5 backdrop-blur-md">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-1">
+      <a href="#sec-inicio" class="text-rose-300 font-serif-title font-bold text-sm tracking-wide">
+        🌹 Roses
+      </a>
 
-    <!-- Menu Superior com abas acessíveis e fáceis de tocar -->
-    <header class="sticky top-0 z-50 glass-nav px-3 py-2.5">
-      <div class="max-w-4xl mx-auto flex items-center justify-between gap-1">
-        
-        <button type="button" onclick="goToTab('home')" class="text-left font-serif-title font-bold text-rose-300 text-sm tracking-wide flex items-center gap-1">
-          <span>🌹</span>
-          <span class="hidden xs:inline">Roses</span>
-        </button>
+      <nav class="flex items-center gap-1.5 overflow-x-auto">
+        <a href="#sec-inicio" class="px-2.5 py-1 rounded-full text-xs font-semibold text-rose-200 bg-rose-900/50 border border-rose-500/30">
+          Início
+        </a>
+        <a href="#sec-carta" class="px-2.5 py-1 rounded-full text-xs font-semibold text-rose-200 bg-rose-900/50 border border-rose-500/30">
+          Carta
+        </a>
+        <a href="#sec-momentos" class="px-2.5 py-1 rounded-full text-xs font-semibold text-rose-200 bg-rose-900/50 border border-rose-500/30">
+          Momentos
+        </a>
+        <a href="#sec-musica" class="px-2.5 py-1 rounded-full text-xs font-semibold text-rose-200 bg-rose-900/50 border border-rose-500/30">
+          Música
+        </a>
+      </nav>
 
-        <!-- Barra de Navegação -->
-        <nav class="flex items-center gap-1">
-          <button type="button" onclick="goToTab('home')" id="btn-home" class="nav-tab px-2.5 py-1.5 rounded-full text-xs font-semibold bg-rose-900/80 text-white border border-rose-500/40">
-            Início
-          </button>
-          <button type="button" onclick="goToTab('moments')" id="btn-moments" class="nav-tab px-2.5 py-1.5 rounded-full text-xs font-medium text-rose-200">
-            Momentos
-          </button>
-          <button type="button" onclick="goToTab('garden')" id="btn-garden" class="nav-tab px-2.5 py-1.5 rounded-full text-xs font-medium text-rose-200">
-            Motivos
-          </button>
-          <button type="button" onclick="goToTab('letter')" id="btn-letter" class="nav-tab px-2.5 py-1.5 rounded-full text-xs font-medium text-rose-200">
-            Carta
-          </button>
-          <button type="button" onclick="goToTab('player')" id="btn-player" class="nav-tab px-2.5 py-1.5 rounded-full text-xs font-medium text-rose-200">
-            Música
-          </button>
-        </nav>
+      <!-- Botão Tocar/Pausar Música -->
+      <button type="button" id="btnAudioToggle" class="px-3 py-1 rounded-full bg-rose-600 active:bg-rose-700 text-white font-bold text-xs shadow flex items-center gap-1">
+        <span id="audioIcon">▶</span>
+      </button>
+    </div>
+  </header>
 
-        <!-- Botão Play Rápido do Topo -->
-        <button type="button" onclick="togglePlayMusic()" class="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1 shadow">
-          <span id="quickAudioIcon">▶</span>
-          <span class="hidden sm:inline">Som</span>
-        </button>
+  <!-- CONTEÚDO PRINCIPAL (Tudo visível e acessível por scroll suave) -->
+  <main class="relative z-10 max-w-md mx-auto px-4 py-8 space-y-12">
+
+    <!-- SEÇÃO 1: INÍCIO -->
+    <section id="sec-inicio" class="text-center pt-2">
+      <div class="inline-block px-3.5 py-1 rounded-full bg-rose-950 border border-rose-500/40 text-rose-300 text-xs font-medium mb-4">
+        ✨ Feito com todo carinho para você
       </div>
-    </header>
 
-    <!-- ÁREA PRINCIPAL -->
-    <main class="flex-grow max-w-2xl mx-auto w-full px-4 py-6 flex flex-col justify-center">
+      <h1 class="font-serif-title text-3xl font-bold tracking-tight text-white mb-2 leading-tight">
+        Com você, tudo floresce:
+      </h1>
+      <span class="font-serif-title text-2xl italic bg-gradient-to-r from-rose-400 via-pink-300 to-amber-200 bg-clip-text text-transparent block font-bold mb-4">
+        Everything is coming up roses.
+      </span>
 
-      <!-- ==================== ABA 1: INÍCIO ==================== -->
-      <section id="tab-home" class="page-section active text-center">
-        <div class="inline-block px-3 py-1 rounded-full bg-rose-950/90 border border-rose-500/40 text-rose-300 text-xs font-medium mb-4">
-          ✨ Feito com todo carinho para você
-        </div>
+      <p class="font-serif-body text-lg text-rose-100/90 leading-relaxed mb-6">
+        "Não importa a estação lá fora, ao teu lado o meu mundo sempre encontra um jeito de desabrochar em flores."
+      </p>
 
-        <h1 class="font-serif-title text-3xl sm:text-5xl font-bold tracking-tight mb-3">
-          <span class="block text-white">Com você, tudo floresce:</span>
-          <span class="bg-gradient-to-r from-rose-400 via-pink-300 to-amber-200 bg-clip-text text-transparent italic block mt-1">
-            Everything is coming up roses.
-          </span>
-        </h1>
-
-        <p class="font-serif-body text-lg text-rose-100/90 max-w-lg mx-auto mb-6 leading-relaxed">
-          "Não importa a estação lá fora, ao seu lado o meu mundo sempre encontra um jeito de desabrochar em flores."
-        </p>
-
-        <!-- Envelope Clicável -->
-        <div onclick="goToTab('letter')" class="envelope-card p-5 max-w-sm mx-auto text-center transform transition-transform active:scale-95 my-4">
-          <div class="bg-white/95 rounded-xl p-4 text-stone-900 shadow">
-            <span class="text-2xl mb-1 block">💌</span>
-            <h3 class="font-serif-title text-base font-bold text-rose-800">Para o Amor da Minha Vida</h3>
-            <p class="text-xs text-stone-600 mt-1">Toque aqui para abrir a nossa cartinha completa</p>
-            <span class="mt-3 inline-block px-3 py-1 bg-rose-600 text-white font-bold text-xs rounded-full">
-              Abrir Carta &rarr;
-            </span>
+      <!-- Cartão / Envelope com Link Direto para a Carta -->
+      <a href="#sec-carta" class="block card-box p-5 text-center active:scale-95 transition-transform">
+        <div class="bg-white rounded-xl p-4 text-stone-900 shadow">
+          <span class="text-3xl block mb-1">💌</span>
+          <h3 class="font-serif-title text-base font-bold text-rose-800">Para o Amor da Minha Vida</h3>
+          <p class="text-xs text-stone-600 mt-1">Toque aqui para descer e ler a nossa cartinha</p>
+          <div class="mt-3 inline-block px-4 py-1.5 bg-rose-600 text-white font-bold text-xs rounded-full shadow">
+            Abrir Carta &darr;
           </div>
         </div>
+      </a>
+    </section>
 
-        <!-- Botões de Ação Imediata -->
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-5">
-          <button type="button" onclick="goToTab('moments')" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
-            Ver Momentos &rarr;
-          </button>
-          <button type="button" onclick="goToTab('player')" class="px-4 py-2.5 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-200 text-xs font-semibold">
-            Tocar Música 🎵
-          </button>
-        </div>
-      </section>
-
-      <!-- ==================== ABA 2: MOMENTOS ==================== -->
-      <section id="tab-moments" class="page-section">
+    <!-- SEÇÃO 2: A CARTA -->
+    <section id="sec-carta" class="pt-6">
+      <div class="card-box p-6 border-rose-400/50">
         <div class="text-center mb-5">
-          <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-rose-100">
-            Nossa Linha do Tempo
+          <span class="inline-block px-3 py-1 rounded-full bg-rose-600/30 text-rose-300 text-xs font-bold uppercase tracking-wider mb-2">
+            ❤️ Minha Declaração
+          </span>
+          <h2 class="font-serif-title text-2xl font-bold text-rose-100">
+            Meu amor, isto é para você.
           </h2>
-          <p class="text-rose-300 text-xs mt-1">Momentos que guardo no peito com muito carinho</p>
         </div>
 
-        <div class="glass-panel rounded-2xl p-5 text-center max-w-md mx-auto">
-          <!-- Slide 1 -->
-          <div id="slide-0" class="moment-item space-y-3">
-            <div class="w-16 h-16 rounded-full bg-rose-900/60 border border-rose-400/30 mx-auto flex items-center justify-center text-2xl">
-              ✨
-            </div>
-            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-900/70 text-rose-300">Capítulo 01</span>
-            <h3 class="text-xl font-serif-title font-bold text-rose-100">O Começo de Tudo</h3>
-            <p class="text-sm font-serif-body text-rose-200/90 leading-relaxed">
-              Lembro perfeitamente da sensação quando conversamos de verdade pela primeira vez. Aquele momento em que o mundo desacelerou e tudo pareceu certo.
-            </p>
-          </div>
+        <div class="font-serif-body text-base text-rose-100/95 space-y-4 leading-relaxed text-justify">
+          <p>
+            Às vezes é difícil encontrar as palavras certas para traduzir o que sinto por você. Mas se eu tivesse de resumir tudo em uma sensação, seria paz, alegria e a certeza mais bonita que já tive.
+          </p>
+          <p>
+            Como diz a canção <em>"Coming up roses"</em> — ao teu lado tudo ganha vida e cor. Obrigado por ser meu refúgio, minha companheira e o motivo dos meus sorrisos mais sinceros.
+          </p>
+          <p>
+            Prometo cuidar do nosso amor todos os dias com paciência, carinho e respeito.
+          </p>
+        </div>
 
-          <!-- Slide 2 -->
-          <div id="slide-1" class="moment-item hidden space-y-3">
-            <div class="w-16 h-16 rounded-full bg-rose-900/60 border border-rose-400/30 mx-auto flex items-center justify-center text-2xl">
-              ☕
-            </div>
-            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-900/70 text-rose-300">Capítulo 02</span>
-            <h3 class="text-xl font-serif-title font-bold text-rose-100">Risadas & Sintonia</h3>
-            <p class="text-sm font-serif-body text-rose-200/90 leading-relaxed">
-              O conforto de rir das mesmas coisas bobas e saber que o melhor lugar do mundo é aconchegado nos teus braços.
-            </p>
-          </div>
+        <div class="mt-6 pt-4 border-t border-rose-900/80 text-center font-serif-title italic text-rose-300 text-xs">
+          Com todo o meu amor, para sempre.
+        </div>
+      </div>
+    </section>
 
-          <!-- Slide 3 -->
-          <div id="slide-2" class="moment-item hidden space-y-3">
-            <div class="w-16 h-16 rounded-full bg-rose-900/60 border border-rose-400/30 mx-auto flex items-center justify-center text-2xl">
-              🌱
+    <!-- SEÇÃO 3: MOMENTOS -->
+    <section id="sec-momentos" class="pt-6">
+      <div class="text-center mb-5">
+        <h2 class="font-serif-title text-2xl font-bold text-rose-100">
+          Nossa História
+        </h2>
+        <p class="text-xs text-rose-300 mt-0.5">Lembranças que guardo no peito</p>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Momento 1 -->
+        <div class="card-box p-4 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-rose-900/60 border border-rose-400/30 flex items-center justify-center text-xl shrink-0">
+            ✨
+          </div>
+          <div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-900 text-rose-300">Capítulo 01</span>
+            <h3 class="font-serif-title font-bold text-rose-100 text-sm mt-0.5">O Começo de Tudo</h3>
+            <p class="font-serif-body text-xs text-rose-200/90 mt-1">Aquele instante em que conversamos pela primeira vez e tudo fez sentido.</p>
+          </div>
+        </div>
+
+        <!-- Momento 2 -->
+        <div class="card-box p-4 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-rose-900/60 border border-rose-400/30 flex items-center justify-center text-xl shrink-0">
+            ☕
+          </div>
+          <div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-900 text-rose-300">Capítulo 02</span>
+            <h3 class="font-serif-title font-bold text-rose-100 text-sm mt-0.5">A Nossa Sintonia</h3>
+            <p class="font-serif-body text-xs text-rose-200/90 mt-1">As risadas bobas e a certeza de que nos teus braços é o meu lugar favorito.</p>
+          </div>
+        </div>
+
+        <!-- Momento 3 -->
+        <div class="card-box p-4 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-rose-900/60 border border-rose-400/30 flex items-center justify-center text-xl shrink-0">
+            🌱
+          </div>
+          <div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-900 text-rose-300">Capítulo 03</span>
+            <h3 class="font-serif-title font-bold text-rose-100 text-sm mt-0.5">O Futuro Florescendo</h3>
+            <p class="font-serif-body text-xs text-rose-200/90 mt-1">Cada sonho que planejamos juntos e a calma de ter você ao meu lado.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 4: MÚSICA & PLAYER -->
+    <section id="sec-musica" class="pt-6 text-center">
+      <div class="card-box p-6">
+        <span class="px-3 py-1 rounded-full bg-rose-950 text-rose-300 text-[10px] font-bold uppercase tracking-wider">
+          Nossa Trilha Sonora
+        </span>
+
+        <!-- Vinil Animado -->
+        <div class="w-32 h-32 mx-auto my-5 flex items-center justify-center">
+          <div id="vinylDisk" class="vinyl-disc w-full h-full rounded-full bg-stone-900 border-4 border-stone-800 shadow-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-rose-700 flex flex-col items-center justify-center text-white">
+              <span class="text-[6px] font-bold">HARRY</span>
+              <span class="text-[7px] font-serif-title font-bold">Roses</span>
+              <div class="w-1.5 h-1.5 rounded-full bg-black mt-0.5"></div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-serif-title text-lg font-bold text-rose-100">Coming Up Roses</h3>
+        <p class="text-xs text-rose-300/80 mb-5">Harry Styles</p>
+
+        <!-- Botão Play/Pause -->
+        <button type="button" id="btnBigPlay" class="w-14 h-14 rounded-full bg-rose-600 active:bg-rose-700 text-white font-bold text-xl mx-auto flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+          ▶
+        </button>
+
+        <p id="trackStatus" class="text-xs text-rose-300/70 mt-3">
+          Toque para tocar a música
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="py-6 text-center text-xs text-rose-300/60">
+    Feito com amor ❤️ para a melhor namorada do mundo.
+  </footer>
+
+  <script>
+    // Gerenciador de Áudio com evento nativo direto
+    var audio = document.getElementById('audioTrack');
+    var vinyl = document.getElementById('vinylDisk');
+    var btnBig = document.getElementById('btnBigPlay');
+    var btnHeader = document.getElementById('btnAudioToggle');
+    var headerIcon = document.getElementById('audioIcon');
+    var trackStatus = document.getElementById('trackStatus');
+
+    function toggleAudio() {
+      if (!audio) return;
+      if (audio.paused) {
+        audio.play().then(function() {
+          vinyl.classList.add('playing');
+          btnBig.innerText = '❚❚';
+          headerIcon.innerText = '❚❚';
+          trackStatus.innerText = 'Tocando agora... 🌹';
+        }).catch(function() {
+          trackStatus.innerText = 'Toque novamente para iniciar';
+        });
+      } else {
+        audio.pause();
+        vinyl.classList.remove('playing');
+        btnBig.innerText = '▶';
+        headerIcon.innerText = '▶';
+        trackStatus.innerText = 'Pausado';
+      }
+    }
+
+    btnBig.onclick = toggleAudio;
+    btnHeader.onclick = toggleAudio;
+  </script>
+</body>
+</html>
