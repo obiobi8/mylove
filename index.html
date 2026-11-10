@@ -15,6 +15,11 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: radial-gradient(ellipse at bottom, #2b0813 0%, #120307 60%, #050103 100%);
@@ -31,27 +36,27 @@
       font-family: 'Cormorant Garamond', serif;
     }
 
-    /* Canvas de Flores flutuando em background */
+    /* Canvas no fundo sem bloquear cliques */
     #flowerCanvas {
       position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
-      z-index: 1;
+      pointer-events: none !important;
+      z-index: 0;
     }
 
-    /* Glassmorphism custom */
+    /* Glassmorphism */
     .glass-panel {
-      background: rgba(30, 8, 16, 0.65);
+      background: rgba(30, 8, 16, 0.75);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(244, 114, 182, 0.18);
+      border: 1px solid rgba(244, 114, 182, 0.22);
       box-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.5), 0 0 25px rgba(225, 29, 72, 0.12);
     }
 
     .glass-nav {
-      background: rgba(18, 3, 7, 0.85);
+      background: rgba(18, 3, 7, 0.92);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid rgba(244, 114, 182, 0.15);
     }
@@ -60,41 +65,32 @@
     .page-section {
       display: none;
       opacity: 0;
-      transform: translateY(18px) scale(0.99);
-      transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
     .page-section.active {
       display: block;
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
 
-    /* Envelope Interativo 3D */
-    .envelope-wrapper {
-      perspective: 1000px;
-      cursor: pointer;
-    }
-
-    .envelope {
+    /* Envelope Robusto e Clicável */
+    .envelope-box {
       position: relative;
-      width: 290px;
-      height: 190px;
+      width: 310px;
+      height: 200px;
       background: #7f1d1d;
-      border-radius: 8px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      transition: transform 0.4s ease;
+      border-radius: 12px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.65);
+      cursor: pointer;
+      overflow: visible;
+      margin: 0 auto;
+      touch-action: manipulation;
     }
 
-    @media (min-width: 640px) {
-      .envelope {
-        width: 350px;
-        height: 220px;
-      }
-    }
-
-    .envelope:hover {
-      transform: translateY(-5px);
+    .envelope-box:active {
+      transform: scale(0.98);
     }
 
     .envelope-flap {
@@ -103,79 +99,52 @@
       left: 0;
       width: 0;
       height: 0;
-      border-left: 145px solid transparent;
-      border-right: 145px solid transparent;
+      border-left: 155px solid transparent;
+      border-right: 155px solid transparent;
       border-top: 110px solid #991b1b;
       transform-origin: top;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 4;
+      z-index: 5;
+      pointer-events: none;
     }
 
-    @media (min-width: 640px) {
-      .envelope-flap {
-        border-left-width: 175px;
-        border-right-width: 175px;
-        border-top-width: 125px;
-      }
-    }
-
-    .envelope.open .envelope-flap {
+    .envelope-box.open .envelope-flap {
       transform: rotateX(180deg);
       z-index: 1;
     }
 
     .envelope-pocket {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 0;
-      border-left: 145px solid #6b1414;
-      border-right: 145px solid #6b1414;
-      border-bottom: 100px solid #550f0f;
-      border-top: 90px solid transparent;
-      border-radius: 0 0 8px 8px;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #6b1414 0%, #4a0d1b 100%);
+      border-radius: 12px;
       z-index: 3;
+      clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 55%);
       pointer-events: none;
-    }
-
-    @media (min-width: 640px) {
-      .envelope-pocket {
-        border-left-width: 175px;
-        border-right-width: 175px;
-        border-bottom-width: 115px;
-        border-top-width: 105px;
-      }
     }
 
     .envelope-letter {
       position: absolute;
-      left: 15px;
-      right: 15px;
-      bottom: 12px;
-      height: 165px;
+      left: 16px;
+      right: 16px;
+      top: 20px;
+      height: 160px;
       background: #fff8f8;
-      border-radius: 6px;
-      padding: 16px;
+      border-radius: 8px;
+      padding: 18px 14px;
       color: #3b0714;
       transition: transform 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 2;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    @media (min-width: 640px) {
-      .envelope-letter {
-        left: 20px;
-        right: 20px;
-        height: 190px;
-      }
+    .envelope-box.open .envelope-letter {
+      transform: translateY(-80px);
     }
 
-    .envelope.open .envelope-letter {
-      transform: translateY(-85px);
-    }
-
-    /* Vinil animado */
+    /* Vinil */
     .vinyl-disc {
       animation: spin 7s linear infinite;
       animation-play-state: paused;
@@ -189,19 +158,18 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Cartões 3D Flip para o Jardim de Segredos */
+    /* Cartões 3D Flip */
     .card-3d-wrap {
       perspective: 1000px;
+      cursor: pointer;
     }
 
     .card-3d-inner {
       position: relative;
       width: 100%;
       height: 100%;
-      text-align: center;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
-      cursor: pointer;
     }
 
     .card-3d-inner.flipped {
@@ -225,89 +193,580 @@
 </head>
 <body class="relative flex flex-col justify-between selection:bg-rose-500 selection:text-white">
 
-  <!-- Fundo Animado com Rosas e Flores Subindo -->
+  <!-- Fundo Animado -->
   <canvas id="flowerCanvas"></canvas>
 
-  
+  <!-- Áudio (Substitua pelo seu link direto se desejar) -->
   <audio id="loveAudio" loop preload="auto">
     <source id="audioSource" src="https://files.catbox.moe/t6wmzu.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Barra de Navegação Superior Fixa -->
-  <nav class="sticky top-0 z-50 glass-nav px-4 py-3 sm:px-8">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <!-- Logo -->
-      <a href="#" onclick="switchPage('home')" class="flex items-center gap-2 group">
-        <span class="text-rose-400 group-hover:scale-110 transition-transform duration-300">
-          <i data-lucide="flower-2" class="w-6 h-6"></i>
+  <!-- Barra de Navegação Adaptada a Ecrãs Móveis -->
+  <nav class="sticky top-0 z-50 glass-nav px-3 py-2.5 sm:px-6">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <!-- Logótipo -->
+      <button onclick="switchPage('home')" class="flex items-center gap-1.5 text-left">
+        <span class="text-rose-400">
+          <i data-lucide="flower-2" class="w-5 h-5"></i>
         </span>
-        <span class="font-serif-title tracking-wider text-lg font-semibold bg-gradient-to-r from-rose-200 via-rose-300 to-amber-200 bg-clip-text text-transparent">
-          Coming Up Roses
+        <span class="font-serif-title text-base sm:text-lg font-bold bg-gradient-to-r from-rose-200 via-rose-300 to-amber-200 bg-clip-text text-transparent">
+          Roses
         </span>
-      </a>
+      </button>
 
-      <!-- Menu de Páginas -->
-      <div class="flex items-center gap-1 sm:gap-2">
-        <button onclick="switchPage('home')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-white bg-rose-900/60" data-page="home">
-          <i data-lucide="home" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Início</span>
+      <!-- Botões de Navegação com ícones sempre visíveis -->
+      <div class="flex items-center gap-1 overflow-x-auto py-1">
+        <button onclick="switchPage('home')" class="nav-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all text-white bg-rose-900/70 border border-rose-500/30 flex items-center gap-1" data-page="home">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i>
+          <span>Início</span>
         </button>
 
-        <button onclick="switchPage('moments')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="moments">
-          <i data-lucide="image" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Momentos</span>
+        <button onclick="switchPage('moments')" class="nav-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all text-rose-300 hover:bg-rose-900/40 flex items-center gap-1" data-page="moments">
+          <i data-lucide="image" class="w-3.5 h-3.5"></i>
+          <span>Fotos</span>
         </button>
 
-        <button onclick="switchPage('garden')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="garden">
-          <i data-lucide="sparkles" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Motivos</span>
+        <button onclick="switchPage('garden')" class="nav-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all text-rose-300 hover:bg-rose-900/40 flex items-center gap-1" data-page="garden">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Motivos</span>
         </button>
 
-        <button onclick="switchPage('letter')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="letter">
-          <i data-lucide="mail-heart" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Carta</span>
+        <button onclick="switchPage('letter')" class="nav-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all text-rose-300 hover:bg-rose-900/40 flex items-center gap-1" data-page="letter">
+          <i data-lucide="mail-heart" class="w-3.5 h-3.5"></i>
+          <span>Carta</span>
         </button>
 
-        <button onclick="switchPage('player')" class="nav-btn px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 text-rose-300 hover:bg-rose-900/40" data-page="player">
-          <i data-lucide="disc" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Música</span>
+        <button onclick="switchPage('player')" class="nav-btn px-2.5 py-1.5 rounded-full text-xs font-medium transition-all text-rose-300 hover:bg-rose-900/40 flex items-center gap-1" data-page="player">
+          <i data-lucide="disc" class="w-3.5 h-3.5"></i>
+          <span>Música</span>
         </button>
       </div>
 
-      <!-- Quick Audio Pill -->
-      <button id="quickPlayBtn" onclick="toggleAudio()" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 hover:bg-rose-500/30 text-rose-200 transition-all text-xs font-semibold">
+      <!-- Botão Play Rápido -->
+      <button id="quickPlayBtn" onclick="toggleAudio()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-xs font-semibold shrink-0">
         <i id="quickPlayIcon" data-lucide="play" class="w-3.5 h-3.5 text-rose-300"></i>
-        <span id="quickPlayText" class="hidden md:inline">Tocar</span>
       </button>
     </div>
   </nav>
 
-  <!-- CONTEÚDO PRINCIPAL (Troca de Páginas) -->
-  <main class="relative z-10 flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-center">
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="relative z-10 flex-grow max-w-4xl mx-auto w-full px-4 py-8 flex flex-col justify-center">
 
     <!-- ==================== PÁGINA 1: INÍCIO ==================== -->
     <section id="page-home" class="page-section active text-center">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs sm:text-sm font-medium mb-6 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-950/70 border border-rose-500/30 text-rose-300 text-xs font-medium mb-5">
         <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-400 fill-rose-400 animate-pulse"></i>
         <span>Feito com todo carinho para você</span>
       </div>
 
-      <h1 class="font-serif-title text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-4">
+      <h1 class="font-serif-title text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-3">
         <span class="block text-white">Com você, tudo floresce:</span>
-        <span class="bg-gradient-to-r from-rose-400 via-pink-300 to-amber-200 bg-clip-text text-transparent italic">
+        <span class="bg-gradient-to-r from-rose-400 via-pink-300 to-amber-200 bg-clip-text text-transparent italic block mt-1">
           Everything is coming up roses.
         </span>
       </h1>
 
-      <p class="font-serif-body text-xl sm:text-2xl text-rose-100/90 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+      <p class="font-serif-body text-lg sm:text-xl text-rose-100/90 max-w-xl mx-auto mb-8 font-light leading-relaxed">
         "Não importa a estação lá fora, ao seu lado o meu mundo sempre encontra um jeito de desabrochar em flores."
       </p>
 
-      <!-- Envelope Interativo -->
-      <div class="flex flex-col items-center justify-center my-6">
-        <div class="envelope-wrapper" onclick="toggleEnvelope(this)">
-          <div class="envelope" id="mainEnvelope">
-            <div class="envelope-flap"></div>
-            <div class="envelope-letter flex flex-col justify-center items-center text-center">
-              <span class="text-rose-600 font-serif-title italic font-bold text-lg mb-1">Para o amor da minha vida</span>
-              <p class
+      <!-- Envelope Clicável com Botão Direto -->
+      <div class="my-6">
+        <div class="envelope-box" id="envelopeBox" onclick="openEnvelopeAction()">
+          <div class="envelope-flap"></div>
+          <div class="envelope-letter flex flex-col justify-center items-center text-center">
+            <span class="text-rose-700 font-serif-title italic font-bold text-base mb-1">Para o amor da minha vida</span>
+            <p class="text-[12px] text-stone-700 leading-tight">
+              Toque aqui para abrir a nossa cartinha completa!
+            </p>
+            <span class="mt-2 text-rose-600 flex items-center gap-1 text-[11px] font-bold">
+              Ler agora <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </span>
+          </div>
+          <div class="envelope-pocket"></div>
+          <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+            <span class="w-8 h-8 rounded-full bg-amber-400 text-stone-900 flex items-center justify-center shadow-lg font-bold text-xs border border-amber-200">
+              ❤️
+            </span>
+          </div>
+        </div>
+
+        <button onclick="openEnvelopeAction()" class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-lg transition-transform active:scale-95">
+          <i data-lucide="mail-open" class="w-4 h-4"></i>
+          <span>Toque para Abrir o Envelope</span>
+        </button>
+      </div>
+
+      <!-- Atalhos -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
+        <button onclick="switchPage('moments')" class="px-5 py-2.5 rounded-full bg-rose-950/70 border border-rose-500/30 text-rose-200 text-xs font-semibold hover:bg-rose-900/60 transition-colors flex items-center gap-1.5">
+          <span>Ver Momentos</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <button onclick="toggleAudio()" class="px-5 py-2.5 rounded-full bg-rose-950/70 border border-rose-500/30 text-rose-200 text-xs font-semibold hover:bg-rose-900/60 transition-colors flex items-center gap-1.5">
+          <i data-lucide="volume-2" class="w-3.5 h-3.5 text-rose-400"></i>
+          <span>Tocar Música</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== PÁGINA 2: MOMENTOS ==================== -->
+    <section id="page-moments" class="page-section">
+      <div class="text-center mb-6">
+        <h2 class="font-serif-title text-2xl sm:text-4xl font-bold text-rose-100">
+          Nossa História em Capítulos
+        </h2>
+        <p class="text-rose-300/80 text-xs sm:text-sm mt-1">
+          Lembranças que guardo no peito com todo o carinho.
+        </p>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-5 sm:p-8 max-w-2xl mx-auto">
+        <div id="momentsSlider" class="min-h-[260px] flex items-center justify-center">
+          
+          <!-- Slide 1 -->
+          <div class="moment-slide flex flex-col sm:flex-row items-center gap-5 text-left w-full">
+            <div class="w-full sm:w-1/2 h-44 rounded-xl bg-rose-950/70 border border-rose-400/20 flex flex-col items-center justify-center text-center p-3">
+              <i data-lucide="sparkles" class="w-8 h-8 text-amber-300 mb-2 animate-bounce"></i>
+              <p class="text-xs text-rose-300">O Começo</p>
+              <span class="text-base font-serif-title text-rose-100 font-semibold">O Primeiro Sorriso</span>
+            </div>
+            <div class="w-full sm:w-1/2 space-y-2">
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-900/70 text-rose-300 border border-rose-500/20">Capítulo 01</span>
+              <h3 class="text-lg font-serif-title font-bold text-rose-100">Quando tudo começou</h3>
+              <p class="text-xs sm:text-sm text-rose-200/90 font-serif-body leading-relaxed">
+                Lembro com exatidão da sensação da nossa primeira conversa. O tempo pareceu desacelerar e tive a certeza de que algo muito bom estava prestes a florescer.
+              </p>
+            </div>
+          </div>
+
+          <!-- Slide 2 -->
+          <div class="moment-slide hidden flex flex-col sm:flex-row items-center gap-5 text-left w-full">
+            <div class="w-full sm:w-1/2 h-44 rounded-xl bg-rose-950/70 border border-rose-400/20 flex flex-col items-center justify-center text-center p-3">
+              <i data-lucide="coffee" class="w-8 h-8 text-amber-300 mb-2"></i>
+              <p class="text-xs text-rose-300">Nossa Sintonia</p>
+              <span class="text-base font-serif-title text-rose-100 font-semibold">Conversas Sem Fim</span>
+            </div>
+            <div class="w-full sm:w-1/2 space-y-2">
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-900/70 text-rose-300 border border-rose-500/20">Capítulo 02</span>
+              <h3 class="text-lg font-serif-title font-bold text-rose-100">Risadas que viraram lar</h3>
+              <p class="text-xs sm:text-sm text-rose-200/90 font-serif-body leading-relaxed">
+                Aquele jeito leve que só nós temos juntos. Rir das mesmas coisas, partilhar segredos e sentir que o meu porto de abrigo é contigo.
+              </p>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="moment-slide hidden flex flex-col sm:flex-row items-center gap-5 text-left w-full">
+            <div class="w-full sm:w-1/2 h-44 rounded-xl bg-rose-950/70 border border-rose-400/20 flex flex-col items-center justify-center text-center p-3">
+              <i data-lucide="infinity" class="w-8 h-8 text-rose-400 mb-2"></i>
+              <p class="text-xs text-rose-300">O Futuro</p>
+              <span class="text-base font-serif-title text-rose-100 font-semibold">Tudo a Florescer</span>
+            </div>
+            <div class="w-full sm:w-1/2 space-y-2">
+              <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-900/70 text-rose-300 border border-rose-500/20">Capítulo 03</span>
+              <h3 class="text-lg font-serif-title font-bold text-rose-100">O que ainda vamos viver</h3>
+              <p class="text-xs sm:text-sm text-rose-200/90 font-serif-body leading-relaxed">
+                Cada novo plano, cada meta que partilhamos. A tranquilidade de ter a melhor companheira ao meu lado em cada passo.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Controles -->
+        <div class="flex items-center justify-between mt-6 pt-3 border-t border-rose-500/20">
+          <button onclick="prevSlide()" class="p-2 rounded-full hover:bg-rose-900/60 text-rose-200">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          </button>
+          
+          <div class="flex gap-2" id="slideIndicators">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 cursor-pointer" onclick="goToSlide(0)"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-900 cursor-pointer" onclick="goToSlide(1)"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-900 cursor-pointer" onclick="goToSlide(2)"></span>
+          </div>
+
+          <button onclick="nextSlide()" class="p-2 rounded-full hover:bg-rose-900/60 text-rose-200">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PÁGINA 3: JARDIM DE MOTIVOS ==================== -->
+    <section id="page-garden" class="page-section">
+      <div class="text-center mb-6">
+        <h2 class="font-serif-title text-2xl sm:text-4xl font-bold text-rose-100">
+          Jardim de Segredos
+        </h2>
+        <p class="text-rose-300/80 text-xs sm:text-sm mt-1">
+          Toque em cada cartão para revelar um detalhe sobre ti.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+        
+        <div class="card-3d-wrap h-40" onclick="flipCard(this)">
+          <div class="card-3d-inner">
+            <div class="card-front glass-panel p-4 flex flex-col items-center justify-center border-rose-500/30">
+              <span class="text-2xl mb-1">🌹</span>
+              <h4 class="font-serif-title font-bold text-rose-200 text-sm">O Teu Sorriso</h4>
+              <p class="text-[11px] text-rose-400/80 mt-1">Toque para ver</p>
+            </div>
+            <div class="card-back glass-panel bg-rose-950 p-4 flex flex-col items-center justify-center border-rose-400">
+              <p class="text-xs text-rose-100 font-serif-body italic">
+                "Tem o dom de iluminar e trazer calma mesmo ao dia mais atribulado."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-3d-wrap h-40" onclick="flipCard(this)">
+          <div class="card-3d-inner">
+            <div class="card-front glass-panel p-4 flex flex-col items-center justify-center border-rose-500/30">
+              <span class="text-2xl mb-1">✨</span>
+              <h4 class="font-serif-title font-bold text-rose-200 text-sm">A Tua Bondade</h4>
+              <p class="text-[11px] text-rose-400/80 mt-1">Toque para ver</p>
+            </div>
+            <div class="card-back glass-panel bg-rose-950 p-4 flex flex-col items-center justify-center border-rose-400">
+              <p class="text-xs text-rose-100 font-serif-body italic">
+                "O teu coração gigante e a maneira carinhosa como tratas quem amas."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-3d-wrap h-40" onclick="flipCard(this)">
+          <div class="card-3d-inner">
+            <div class="card-front glass-panel p-4 flex flex-col items-center justify-center border-rose-500/30">
+              <span class="text-2xl mb-1">🤍</span>
+              <h4 class="font-serif-title font-bold text-rose-200 text-sm">O Teu Abraço</h4>
+              <p class="text-[11px] text-rose-400/80 mt-1">Toque para ver</p>
+            </div>
+            <div class="card-back glass-panel bg-rose-950 p-4 flex flex-col items-center justify-center border-rose-400">
+              <p class="text-xs text-rose-100 font-serif-body italic">
+                "O lugar mais aconchegante da Terra. Ali dentro sinto-me sempre em casa."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-3d-wrap h-40" onclick="flipCard(this)">
+          <div class="card-3d-inner">
+            <div class="card-front glass-panel p-4 flex flex-col items-center justify-center border-rose-500/30">
+              <span class="text-2xl mb-1">🌸</span>
+              <h4 class="font-serif-title font-bold text-rose-200 text-sm">A Tua Garra</h4>
+              <p class="text-[11px] text-rose-400/80 mt-1">Toque para ver</p>
+            </div>
+            <div class="card-back glass-panel bg-rose-950 p-4 flex flex-col items-center justify-center border-rose-400">
+              <p class="text-xs text-rose-100 font-serif-body italic">
+                "A determinação e empenho com que persegues os teus sonhos enchem-me de orgulho."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-3d-wrap h-40" onclick="flipCard(this)">
+          <div class="card-3d-inner">
+            <div class="card-front glass-panel p-4 flex flex-col items-center justify-center border-rose-500/30">
+              <span class="text-2xl mb-1">🎶</span>
+              <h4 class="font-serif-title font-bold text-rose-200 text-sm">A Nossa Canção</h4>
+              <p class="text-[11px] text-rose-400/80 mt-1">Toque para ver</p>
+            </div>
+            <div class="card-back glass-panel bg-rose-950 p-4 flex flex-col items-center justify-center border-rose-400">
+              <p class="text-xs text-rose-100 font-serif-body italic">
+                "Coming Up Roses faz sentido em cada detalhe quando penso na nossa união."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-3d-wrap h-40" onclick="flipCard(this)">
+          <div class="card-3d-inner">
+            <div class="card-front glass-panel p-4 flex flex-col items-center justify-center border-rose-500/30">
+              <span class="text-2xl mb-1">👑</span>
+              <h4 class="font-serif-title font-bold text-rose-200 text-sm">Tu por Inteiro</h4>
+              <p class="text-[11px] text-rose-400/80 mt-1">Toque para ver</p>
+            </div>
+            <div class="card-back glass-panel bg-rose-950 p-4 flex flex-col items-center justify-center border-rose-400">
+              <p class="text-xs text-rose-100 font-serif-body italic">
+                "Amo cada particularidade, o teu humor, a tua inteligência e quem tu és."
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== PÁGINA 4: A CARTA ==================== -->
+    <section id="page-letter" class="page-section">
+      <div class="glass-panel max-w-2xl mx-auto rounded-3xl p-6 sm:p-10 relative border-rose-300/30">
+        <div class="text-center mb-6">
+          <span class="inline-block px-4 py-1 rounded-full bg-rose-600/30 text-rose-300 text-xs font-semibold uppercase tracking-wider mb-3">
+            ❤️ Minha Declaração
+          </span>
+          <h3 class="font-serif-title text-2xl sm:text-3xl font-bold text-rose-100">
+            Meu bem, isto é para ti.
+          </h3>
+        </div>
+
+        <div class="font-serif-body text-base sm:text-xl text-rose-100/90 leading-relaxed space-y-4 text-justify">
+          <p>
+            Às vezes é difícil encontrar as palavras exatas para expressar tudo o que significas para mim. Se eu tivesse de resumir o que sinto quando penso em ti, seria tranquilidade, carinho e uma felicidade genuína.
+          </p>
+
+          <p>
+            Tal como diz a letra de <em>"Coming up roses"</em> — ao teu lado, o caminho enche-se de vida e qualquer dificuldade torna-se suave. Obrigado por seres a minha melhor companhia, o meu apoio e o motivo dos meus sorrisos mais sinceros.
+          </p>
+
+          <p>
+            Prometo cuidar do nosso amor todos os dias, com lealdade, compreensão e muito carinho.
+          </p>
+        </div>
+
+        <div class="mt-8 pt-4 border-t border-rose-500/20 text-center sm:text-right text-xs text-rose-300 font-serif-title italic">
+          Com todo o meu amor, sempre.
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PÁGINA 5: MÚSICA ==================== -->
+    <section id="page-player" class="page-section">
+      <div class="max-w-md mx-auto glass-panel rounded-3xl p-6 sm:p-8 text-center border-rose-400/30">
+        <span class="px-3 py-1 rounded-full bg-rose-950/80 border border-rose-500/30 text-rose-300 text-[11px] font-semibold inline-block mb-4">
+          Trilha Sonora Especial
+        </span>
+
+        <!-- Vinil -->
+        <div class="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto mb-6 flex items-center justify-center">
+          <div id="vinylRecord" class="vinyl-disc w-full h-full rounded-full bg-stone-900 border-4 border-stone-800 shadow-2xl flex items-center justify-center relative">
+            <div class="w-4/5 h-4/5 rounded-full border border-stone-800/80 flex items-center justify-center">
+              <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-rose-700 to-amber-500 flex flex-col items-center justify-center text-center p-1">
+                <span class="text-[8px] font-bold text-stone-900">Harry Styles</span>
+                <span class="text-[9px] font-serif-title font-bold text-white leading-tight">Roses</span>
+                <div class="w-2.5 h-2.5 rounded-full bg-stone-950 mt-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-serif-title text-xl font-bold text-rose-100">Coming Up Roses</h3>
+        <p class="text-xs text-rose-300 mb-5">Harry Styles</p>
+
+        <!-- Barra de Progresso -->
+        <div class="mb-5">
+          <div class="w-full bg-rose-950 h-2 rounded-full overflow-hidden cursor-pointer border border-rose-500/20" onclick="seekAudio(event)" id="progressBarContainer">
+            <div id="progressBar" class="bg-gradient-to-r from-rose-500 to-amber-300 h-full w-0"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-rose-300/70 mt-1 font-mono">
+            <span id="currentTimeText">0:00</span>
+            <span id="durationText">--:--</span>
+          </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="flex items-center justify-center gap-5">
+          <button onclick="rewindAudio(10)" class="p-2.5 rounded-full hover:bg-rose-900/50 text-rose-300">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          </button>
+
+          <button id="mainPlayBtn" onclick="toggleAudio()" class="w-14 h-14 rounded-full bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center shadow-lg text-white">
+            <i id="mainPlayIcon" data-lucide="play" class="w-6 h-6 fill-white ml-0.5"></i>
+          </button>
+
+          <button onclick="forwardAudio(10)" class="p-2.5 rounded-full hover:bg-rose-900/50 text-rose-300">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="relative z-10 py-4 text-center text-[11px] text-rose-300/60">
+    Feito com amor para a melhor namorada do mundo.
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Gestor de Páginas
+    function switchPage(pageId) {
+      document.querySelectorAll('.page-section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+
+      const target = document.getElementById(`page-${pageId}`);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.getAttribute('data-page') === pageId) {
+          btn.classList.add('bg-rose-900/70', 'text-white', 'border', 'border-rose-500/30');
+          btn.classList.remove('text-rose-300');
+        } else {
+          btn.classList.remove('bg-rose-900/70', 'text-white', 'border', 'border-rose-500/30');
+          btn.classList.add('text-rose-300');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Ação de Abertura do Envelope
+    function openEnvelopeAction() {
+      const box = document.getElementById('envelopeBox');
+      box.classList.add('open');
+      setTimeout(() => {
+        switchPage('letter');
+      }, 700);
+    }
+
+    // Slides
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.moment-slide');
+    const dots = document.querySelectorAll('#slideIndicators span');
+
+    function updateSlide() {
+      slides.forEach((s, idx) => s.classList.toggle('hidden', idx !== currentSlide));
+      dots.forEach((d, idx) => {
+        d.classList.toggle('bg-rose-400', idx === currentSlide);
+        d.classList.toggle('bg-rose-900', idx !== currentSlide);
+      });
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      updateSlide();
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      updateSlide();
+    }
+
+    function goToSlide(i) {
+      currentSlide = i;
+      updateSlide();
+    }
+
+    // Flip Cards
+    function flipCard(el) {
+      const inner = el.querySelector('.card-3d-inner');
+      inner.classList.toggle('flipped');
+    }
+
+    // Áudio
+    const audio = document.getElementById('loveAudio');
+    const vinyl = document.getElementById('vinylRecord');
+    const mainPlayIcon = document.getElementById('mainPlayIcon');
+    const quickPlayIcon = document.getElementById('quickPlayIcon');
+    const progressBar = document.getElementById('progressBar');
+    const currentTimeText = document.getElementById('currentTimeText');
+    const durationText = document.getElementById('durationText');
+
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play().then(() => updatePlayState(true)).catch(() => {});
+      } else {
+        audio.pause();
+        updatePlayState(false);
+      }
+    }
+
+    function updatePlayState(isPlaying) {
+      if (isPlaying) {
+        vinyl.classList.add('playing');
+        mainPlayIcon.setAttribute('data-lucide', 'pause');
+        quickPlayIcon.setAttribute('data-lucide', 'pause');
+      } else {
+        vinyl.classList.remove('playing');
+        mainPlayIcon.setAttribute('data-lucide', 'play');
+        quickPlayIcon.setAttribute('data-lucide', 'play');
+      }
+      lucide.createIcons();
+    }
+
+    function formatTime(sec) {
+      if (isNaN(sec)) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+        currentTimeText.innerText = formatTime(audio.currentTime);
+      }
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+      durationText.innerText = formatTime(audio.duration);
+    });
+
+    function seekAudio(e) {
+      const rect = document.getElementById('progressBarContainer').getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      if (audio.duration) audio.currentTime = (clickX / rect.width) * audio.duration;
+    }
+
+    function rewindAudio(s) { audio.currentTime = Math.max(0, audio.currentTime - s); }
+    function forwardAudio(s) { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + s); }
+
+    // Canvas de Pétalas
+    const canvas = document.getElementById('flowerCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    class RosePetal {
+      constructor() { this.reset(true); }
+      reset(init = false) {
+        this.x = Math.random() * width;
+        this.y = init ? Math.random() * height : height + 20;
+        this.size = Math.random() * 10 + 8;
+        this.speedY = Math.random() * 1.2 + 0.6;
+        this.rot = Math.random() * 360;
+        this.spin = (Math.random() - 0.5) * 1.5;
+        this.opacity = Math.random() * 0.45 + 0.25;
+      }
+      update() {
+        this.y -= this.speedY;
+        this.x += Math.sin(this.y * 0.01) * 0.6;
+        this.rot += this.spin;
+        if (this.y < -30) this.reset(false);
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rot * Math.PI) / 180);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.8)';
+        ctx.beginPath();
+        ctx.moveTo(0, -this.size);
+        ctx.bezierCurveTo(this.size * 0.8, -this.size * 0.6, this.size * 0.8, this.size * 0.6, 0, this.size);
+        ctx.bezierCurveTo(-this.size * 0.8, this.size * 0.6, -this.size * 0.8, -this.size * 0.6, 0, -this.size);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    const petals = Array.from({ length: 28 }, () => new RosePetal());
+    function loop() {
+      ctx.clearRect(0, 0, width, height);
+      petals.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
